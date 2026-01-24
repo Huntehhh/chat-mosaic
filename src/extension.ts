@@ -3580,7 +3580,8 @@ class ClaudeChatProvider {
 						totalCost: data.totalCost || 0,
 						firstUserMessage: typeof firstUserMessage === 'string' ? firstUserMessage : JSON.stringify(firstUserMessage),
 						lastUserMessage: typeof lastUserMessage === 'string' ? lastUserMessage : JSON.stringify(lastUserMessage),
-						chatName: data.chatName // Include custom chat name from JSON
+						chatName: data.chatName, // Include custom chat name from JSON
+						source: 'internal' as const // Internal conversations saved by this extension
 					};
 
 					console.log(`[Index Rebuild] File: ${filename}, chatName: ${data.chatName || 'undefined'}, firstMsg: ${indexEntry.firstUserMessage.substring(0, 30)}`);

@@ -506,3 +506,118 @@
 .animate-pulse-subtle {
   animation: pulseSubtle 2s ease-in-out infinite;
 }
+
+/* ============================================
+   MCP Tool Content Styling
+   25% smaller text with orange headers
+   ============================================ */
+
+/* MCP content wrapper */
+.mcp-content {
+  font-family: -apple-system, 'Inter', 'Segoe UI', sans-serif;
+  line-height: 1.5;
+  color: #e4e4e7;
+}
+
+/* Small variant - 25% smaller (10.5px base instead of 14px) */
+.mcp-content-small {
+  font-size: 10.5px;
+}
+
+.mcp-content-small .markdown-content {
+  font-size: 10.5px;
+}
+
+.mcp-content-small .markdown-content h1,
+.mcp-content-small .markdown-content h2,
+.mcp-content-small .markdown-content h3,
+.mcp-content-small .markdown-content h4 {
+  color: #FFA344;
+  font-weight: 600;
+}
+
+.mcp-content-small .markdown-content h1 { font-size: 1.3em; }
+.mcp-content-small .markdown-content h2 { font-size: 1.15em; }
+.mcp-content-small .markdown-content h3 { font-size: 1.05em; }
+.mcp-content-small .markdown-content h4 { font-size: 1em; }
+
+/* Bold text in MCP (often JSON keys) - orange color */
+.mcp-content-small .markdown-content strong {
+  color: #FFA344;
+  font-weight: 600;
+}
+
+/* Inline code in MCP - smaller */
+.mcp-content-small .markdown-content .inline-code,
+.mcp-content-small .markdown-content code {
+  font-size: 0.9em;
+}
+
+/* Code blocks in MCP - smaller */
+.mcp-content-small .markdown-content .code-block-container {
+  margin: 0.75em 0;
+}
+
+.mcp-content-small .markdown-content .code-block-pre {
+  font-size: 10px;
+  padding: 8px;
+}
+
+.mcp-content-small .markdown-content .code-block-header {
+  padding: 4px 8px;
+}
+
+.mcp-content-small .markdown-content .code-block-lang {
+  font-size: 9px;
+}
+
+/* Tables in MCP - smaller */
+.mcp-content-small .markdown-content table {
+  font-size: 10px;
+}
+
+.mcp-content-small .markdown-content th,
+.mcp-content-small .markdown-content td {
+  padding: 4px 8px;
+}
+
+/* Error state for MCP output */
+.mcp-content-error .markdown-content {
+  color: #ffa198;
+}
+
+.mcp-content-error .markdown-content h1,
+.mcp-content-error .markdown-content h2,
+.mcp-content-error .markdown-content h3,
+.mcp-content-error .markdown-content h4,
+.mcp-content-error .markdown-content strong {
+  color: #ff7369;
+}
+
+/* Lists in MCP - tighter spacing */
+.mcp-content-small .markdown-content ul,
+.mcp-content-small .markdown-content ol {
+  margin: 0.5em 0;
+  padding-left: 1.25em;
+}
+
+.mcp-content-small .markdown-content li {
+  margin-bottom: 0.15em;
+}
+
+/* Paragraphs in MCP - tighter spacing */
+.mcp-content-small .markdown-content p {
+  margin: 0 0 0.5em;
+}
+
+/* Horizontal rules in MCP - tighter */
+.mcp-content-small .markdown-content hr {
+  margin: 0.75em 0;
+}
+
+/* Blockquotes in MCP - smaller */
+.mcp-content-small .markdown-content blockquote {
+  margin: 0.5em 0;
+  padding-left: 0.75em;
+  font-size: 10px;
+}

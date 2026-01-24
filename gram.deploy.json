@@ -1,0 +1,13 @@
+{
+  "schema_version": "1.0.0",
+  "type": "deployment",
+  "sources": [
+    {
+      "type": "function",
+      "location": "C:/MCP/gram-tools/dist/gram.zip",
+      "name": "Utility Tools",
+      "slug": "utility-tools",
+      "runtime": "nodejs:22"
+    }
+  ]
+}

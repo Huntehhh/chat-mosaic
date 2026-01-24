@@ -18,11 +18,7 @@ mcp-permissions.js
 build/**
 tailwind.config.js
 postcss.config.js
-
-# Local config and dev folders
 .mcp.json
 .specstory/**
 .worktrees/**
-.serena/**
-docs/**
 opencode-cli/**

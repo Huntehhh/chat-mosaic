@@ -1,16 +1,17 @@
 out
+out.current-backup/
 dist
 node_modules
 .vscode-test/
 *.vsix
 backup
-nul
-
-# Local configuration with secrets
+*.backup-*
 .mcp.json
-
-# Development folders (not part of extension)
-docs/
+.worktrees/.mcp.json
 opencode-cli/
 .worktrees/
-.serena/
+nul
+set-tool-search-env.txt
+*.log
+docs/.my.log
+docs/history.log

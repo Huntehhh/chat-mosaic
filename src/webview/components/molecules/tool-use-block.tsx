@@ -4,6 +4,8 @@ import * as React from 'react';
 import { cn } from '../../lib/utils';
 import { Icon } from '../ui/icon';
 import { DiffView, type DiffLine } from './diff-view';
+import { MarkdownRenderer } from '../../lib/markdown';
+import { formatMcpInput, formatMcpOutput } from '../../lib/mcp-formatter';
 
 // Tool icon mapping
 const toolIcons: Record<string, string> = {
@@ -57,7 +59,7 @@ function getToolDescription(toolName: string, input: Record<string, unknown> | s
 /**
  * Format input for display - extract the most relevant info
  */
-function formatInput(toolName: string, input: Record<string, unknown> | string | undefined): string {
+function formatInput(toolName: string, input: Record<string, unknown> | string | undefined, isMcp: boolean): string {
   if (!input) return '';
   if (typeof input === 'string') return input;
 
@@ -75,7 +77,12 @@ function formatInput(toolName: string, input: Record<string, unknown> | string |
     return input.pattern as string || '';
   }
 
-  // MCP or other tools - show formatted JSON
+  // MCP tools - format as Markdown
+  if (isMcp) {
+    return formatMcpInput(input);
+  }
+
+  // Other tools - show formatted JSON
   return JSON.stringify(input, null, 2);
 }
 
@@ -202,7 +209,7 @@ const ToolUseBlock = React.forwardRef<HTMLDivElement, ToolUseBlockProps>(
     const headerFilePath = getFilePath(toolName, input, filePath);
 
     // Format input for display
-    const formattedInput = formatInput(toolName, input);
+    const formattedInput = formatInput(toolName, input, isMcp);
 
     // Preview lines: 1 for Bash, 2 for MCP, 0 for Read
     const inPreviewLines = isBash ? 1 : (isMcp ? 2 : 2);
@@ -210,9 +217,19 @@ const ToolUseBlock = React.forwardRef<HTMLDivElement, ToolUseBlockProps>(
 
     const { text: inPreview, truncated: inTruncated, lineCount: inLineCount } = truncateLines(formattedInput, inPreviewLines);
 
-    // Format output
+    // Format output - use MCP formatter for MCP tools
     const outputText = output || '';
-    const { text: outPreview, truncated: outTruncated, lineCount: outLineCount } = truncateLines(outputText, outPreviewLines);
+    const formattedOutput = React.useMemo(() => {
+      if (isMcp && outputText) {
+        return formatMcpOutput(outputText);
+      }
+      return outputText;
+    }, [isMcp, outputText]);
+
+    const { text: outPreview, truncated: outTruncated, lineCount: outLineCount } = truncateLines(
+      isMcp ? formattedOutput : outputText,
+      outPreviewLines
+    );
 
     // Render DiffView for Edit operations with diff data
     if ((hasFullDiff || hasInlineDiff) && diffData) {
@@ -274,27 +291,41 @@ const ToolUseBlock = React.forwardRef<HTMLDivElement, ToolUseBlockProps>(
             <div className="ml-5 flex items-start gap-2">
               <span className="text-[10px] font-mono text-[#52525b] select-none shrink-0 w-6 pt-0.5">IN</span>
               <div className="flex-1 min-w-0">
-                <button
-                  type="button"
-                  onClick={() => inTruncated && setInExpanded(!inExpanded)}
-                  className={cn(
-                    "w-full text-left",
-                    inTruncated && "cursor-pointer group"
-                  )}
-                  disabled={!inTruncated}
-                >
-                  <pre className={cn(
-                    'text-[11px] font-mono text-[#8b8b94] whitespace-pre-wrap break-all leading-relaxed',
-                    !inExpanded && inTruncated && (isBash ? 'line-clamp-1' : 'line-clamp-2')
-                  )}>
-                    {inExpanded ? formattedInput : inPreview}
-                    {!inExpanded && inTruncated && (
-                      <span className="text-[#52525b] group-hover:text-[#8b8b94]"> ...</span>
+                {isMcp && inExpanded ? (
+                  /* MCP expanded: render as Markdown with smaller text */
+                  <button
+                    type="button"
+                    onClick={() => setInExpanded(false)}
+                    className="w-full text-left cursor-pointer"
+                  >
+                    <div className="mcp-content mcp-content-small">
+                      <MarkdownRenderer content={formattedInput} />
+                    </div>
+                  </button>
+                ) : (
+                  /* Non-MCP or collapsed: render as pre */
+                  <button
+                    type="button"
+                    onClick={() => inTruncated && setInExpanded(!inExpanded)}
+                    className={cn(
+                      "w-full text-left",
+                      inTruncated && "cursor-pointer group"
                     )}
-                  </pre>
-                </button>
+                    disabled={!inTruncated}
+                  >
+                    <pre className={cn(
+                      'text-[11px] font-mono text-[#8b8b94] whitespace-pre-wrap break-all leading-relaxed',
+                      !inExpanded && inTruncated && (isBash ? 'line-clamp-1' : 'line-clamp-2')
+                    )}>
+                      {inExpanded ? formattedInput : inPreview}
+                      {!inExpanded && inTruncated && (
+                        <span className="text-[#52525b] group-hover:text-[#8b8b94]"> ...</span>
+                      )}
+                    </pre>
+                  </button>
+                )}
               </div>
-              {inTruncated && (
+              {(inTruncated || (isMcp && inExpanded)) && (
                 <button
                   type="button"
                   onClick={() => setInExpanded(!inExpanded)}
@@ -314,28 +345,42 @@ const ToolUseBlock = React.forwardRef<HTMLDivElement, ToolUseBlockProps>(
             <div className="ml-5 flex items-start gap-2">
               <span className="text-[10px] font-mono text-[#52525b] select-none shrink-0 w-6 pt-0.5">OUT</span>
               <div className="flex-1 min-w-0">
-                <button
-                  type="button"
-                  onClick={() => outTruncated && setOutExpanded(!outExpanded)}
-                  className={cn(
-                    "w-full text-left",
-                    outTruncated && "cursor-pointer group"
-                  )}
-                  disabled={!outTruncated}
-                >
-                  <pre className={cn(
-                    'text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed',
-                    isError ? 'text-[#ffa198]' : 'text-[#8b8b94]',
-                    !outExpanded && outTruncated && 'line-clamp-1'
-                  )}>
-                    {outExpanded ? outputText : outPreview}
-                    {!outExpanded && outTruncated && (
-                      <span className="text-[#52525b] group-hover:text-[#8b8b94]"> ...</span>
+                {isMcp && outExpanded ? (
+                  /* MCP expanded: render as Markdown with smaller text */
+                  <button
+                    type="button"
+                    onClick={() => setOutExpanded(false)}
+                    className="w-full text-left cursor-pointer"
+                  >
+                    <div className={cn("mcp-content mcp-content-small", isError && "mcp-content-error")}>
+                      <MarkdownRenderer content={formattedOutput} />
+                    </div>
+                  </button>
+                ) : (
+                  /* Non-MCP or collapsed: render as pre */
+                  <button
+                    type="button"
+                    onClick={() => outTruncated && setOutExpanded(!outExpanded)}
+                    className={cn(
+                      "w-full text-left",
+                      outTruncated && "cursor-pointer group"
                     )}
-                  </pre>
-                </button>
+                    disabled={!outTruncated}
+                  >
+                    <pre className={cn(
+                      'text-[11px] font-mono whitespace-pre-wrap break-all leading-relaxed',
+                      isError ? 'text-[#ffa198]' : 'text-[#8b8b94]',
+                      !outExpanded && outTruncated && 'line-clamp-1'
+                    )}>
+                      {outExpanded ? (isMcp ? formattedOutput : outputText) : outPreview}
+                      {!outExpanded && outTruncated && (
+                        <span className="text-[#52525b] group-hover:text-[#8b8b94]"> ...</span>
+                      )}
+                    </pre>
+                  </button>
+                )}
               </div>
-              {outTruncated && (
+              {(outTruncated || (isMcp && outExpanded)) && (
                 <button
                   type="button"
                   onClick={() => setOutExpanded(!outExpanded)}
