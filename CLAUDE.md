@@ -1,6 +1,6 @@
 # Claude Code Chat Extension
 
-VS Code extension providing a chat interface for Claude Code CLI. Fork of [andrepimenta/claude-code-chat](https://github.com/andrepimenta/claude-code-chat).
+VS Code extension providing a beautiful chat interface for Claude Code CLI.
 
 ## Project Goal
 
